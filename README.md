@@ -6,7 +6,7 @@
 npm install
 
 npm run dev
-
+```
 
 
 
@@ -19,7 +19,7 @@ pip install fastapi uvicorn python-multipart faster-whisper python-dotenv
 
 #สำหลับการ์ดจอ
 pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
-
+```
 
 สำหรับคน "ไม่มี CUDA" (ไม่มีการ์ดจอ NVIDIA)
 
