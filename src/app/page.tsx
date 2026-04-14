@@ -1,65 +1,86 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
 
-export default function Home() {
+export default function SubtitleEditor() {
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [subtitles, setSubtitles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // ฟังก์ชันอัปโหลดไฟล์ไปที่ Backend (FastAPI)
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+    setVideoFile(file);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:8000/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      setSubtitles(data.subtitles); // รับซับจาก AI มาเก็บใน State
+      console.log("Data from Backend:", data);
+      if (data.subtitles) {
+        setSubtitles(data.subtitles);
+      } else {
+        alert("Backend ส่งข้อมูลมาผิดรูปแบบ!");
+      }
+    } catch (err) {
+      console.error("เกิดข้อผิดพลาดในการเชื่อมต่อ:", err);
+      alert("เชื่อมต่อ Server ไม่ได้! ลืมรัน Backend หรือเปล่า?");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ฟังก์ชันสำหรับแก้ตัวหนังสือใน State
+  const updateSubtitle = (id: number, newText: string) => {
+    setSubtitles(subtitles.map(s => s.id === id ? { ...s, text: newText } : s));
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="p-8 bg-gray-900 min-h-screen text-white">
+      <h1 className="text-3xl font-bold mb-6">AI Subtitle Editor 🎬</h1>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* ฝั่งซ้าย: ตัวเล่นวิดีโอ */}
+        <div className="space-y-4">
+          <input type="file" onChange={handleUpload} className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
+
+          {videoFile && (
+            <video
+              src={URL.createObjectURL(videoFile)}
+              controls
+              className="w-full rounded-lg border-2 border-gray-700"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          )}
+          {loading && <p className="animate-pulse text-yellow-400">AI กำลังฟังเสียงและปั่นซับให้ใจเย็นๆ นะครับ...</p>}
         </div>
-      </main>
-    </div>
+
+        {/* ฝั่งขวา: รายการซับไตเติ้ลที่แก้ได้ */}
+        <div className="bg-gray-800 p-4 rounded-lg h-[600px] overflow-y-auto space-y-3">
+          <h2 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Subtitles</h2>
+          {subtitles && subtitles.length > 0 ? (
+            subtitles.map((sub) => (
+              <div key={sub.id} className="flex gap-4 items-start bg-gray-700 p-3 rounded">
+                <span className="text-xs text-gray-400 mt-2">{sub.start}s</span>
+                <textarea
+                  value={sub.text}
+                  onChange={(e) => updateSubtitle(sub.id, e.target.value)}
+                  className="w-full bg-transparent border-none focus:ring-1 focus:ring-blue-500 rounded p-1 resize-none"
+                  rows={2}
+                />
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-center mt-10">ยังไม่มีซับไตเติ้ล อัปโหลดวิดีโอก่อนนะ</p>
+          )}
+        </div>
+      </div>
+    </main>
   );
 }
