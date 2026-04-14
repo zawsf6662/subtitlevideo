@@ -11,9 +11,11 @@ npm run dev
 
 
 ส่วนของ backend
-```bash
+
 ต้องลง [`NVIDIA Driver`](https://www.nvidia.com/en-us/drivers/) ล่าสุด
 ติดตั้ง [`CUDA Toolkit 12`](https://developer.nvidia.com/cuda-12-0-0-download-archive) ขึ้นไป แต่ 12 เสถียรสุด
+
+```bash
 #ต้องติดตั้ง (python 3.10 up)
 pip install fastapi uvicorn python-multipart faster-whisper python-dotenv
 
