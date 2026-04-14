@@ -1,38 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
+ส่วนของ frontend
 
 ```bash
+npm install
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+ส่วนของ backend
+```bash
+ต้องลง [`NVIDIA Driver`](https://www.nvidia.com/en-us/drivers/) ล่าสุด
+ติดตั้ง [`CUDA Toolkit 12`](https://developer.nvidia.com/cuda-12-0-0-download-archive) ขึ้นไป แต่ 12 เสถียรสุด
+#ต้องติดตั้ง (python 3.10 up)
+pip install fastapi uvicorn python-multipart faster-whisper python-dotenv
 
-To learn more about Next.js, take a look at the following resources:
+#สำหลับการ์ดจอ
+pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+สำหรับคน "ไม่มี CUDA" (ไม่มีการ์ดจอ NVIDIA)
 
-## Deploy on Vercel
+ให้แก้ model = WhisperModel("base", device=cpu, compute_type=int8)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+และ ถ้าเครื่องไม่ไหว้ก็มี model อื่น
+จากต่ำไปมากก (กิน ram)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+tiny
+
+base
+
+small
+
+medium
+
+large-v3 (แนะนำ GPU)
+
+turbo
+
+ในส่วนการหา [tokens](https://huggingface.co/)
+
+ถ้าไม่อยากหา tokens ก็หา Offline Mode เอานะ
 
 
